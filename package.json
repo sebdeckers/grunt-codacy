@@ -1,0 +1,41 @@
+{
+  "name": "grunt-codacy",
+  "description": "Publish code coverage metrics to Codacy",
+  "version": "1.0.0",
+  "homepage": "https://github.com/cbas/grunt-codacy",
+  "author": {
+    "name": "Sebastiaan Deckers",
+    "email": "seb@ninja.sg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cbas/grunt-codacy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cbas/grunt-codacy/issues"
+  },
+  "licenses": [
+    {
+      "type": "ISC",
+      "url": "https://github.com/cbas/grunt-codacy/blob/master/LICENSE-ISC"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
