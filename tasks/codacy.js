@@ -25,15 +25,10 @@ module.exports = function(grunt) {
       });
       return inputFiles.length ? Promise.all(inputFiles) : Promise.reject();
     });
-    if (outputFiles.length) {
-      Promise.all(outputFiles)
-        .then(
-          function (val) { done(true); },
-          function (err) { done(false); }
-        );
-    }
-    else {
-      done(false);
-    }
+    Promise.all(outputFiles.length ? outputFiles : [Promise.reject()])
+      .then(
+        function (val) { done(true); },
+        function (err) { done(false); }
+      );
   });
 };
