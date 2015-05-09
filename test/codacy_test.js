@@ -1,48 +1,71 @@
 'use strict';
 
+var codacy = require('codacy-coverage');
 var grunt = require('grunt');
+var sinon = require('sinon');
 
-/*
-  ======== A Handy Little Nodeunit Reference ========
-  https://github.com/caolan/nodeunit
-
-  Test methods:
-    test.expect(numAssertions)
-    test.done()
-  Test assertions:
-    test.ok(value, [message])
-    test.equal(actual, expected, [message])
-    test.notEqual(actual, expected, [message])
-    test.deepEqual(actual, expected, [message])
-    test.notDeepEqual(actual, expected, [message])
-    test.strictEqual(actual, expected, [message])
-    test.notStrictEqual(actual, expected, [message])
-    test.throws(block, [error], [message])
-    test.doesNotThrow(block, [error], [message])
-    test.ifError(value)
-*/
+function runGruntTask(taskName, callback) {
+  var task = grunt.task._taskPlusArgs(taskName);
+  task.task.fn.apply({
+    nameArgs: task.nameArgs,
+    name: task.task.name,
+    args: task.args,
+    flags: task.flags,
+    async: function() { return callback; }
+  }, task.args);
+}
 
 exports.codacy = {
   setUp: function(done) {
-    // setup here if necessary
+    sinon.stub(codacy, 'handleInput');
     done();
   },
-  default_options: function(test) {
-    test.expect(1);
-
-    var actual = grunt.file.read('tmp/default_options');
-    var expected = grunt.file.read('test/expected/default_options');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
-
-    test.done();
+  tearDown: function (callback) {
+    codacy.handleInput.restore();
+    callback();
   },
-  custom_options: function(test) {
-    test.expect(1);
+  submits_file_to_codacy: function (test) {
+    runGruntTask('codacy:basic_test', function (result) {
+      test.ok(result, 'Should be successful');
 
-    var actual = grunt.file.read('tmp/custom_options');
-    var expected = grunt.file.read('test/expected/custom_options');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
-
-    test.done();
+      test.ok(codacy.handleInput.calledOnce);
+      test.equal(codacy.handleInput.getCall(0).args[0], 'lcov.info content', 'Should send lcov data');
+      test.done();
+    });
   },
+  submits_nothing_if_the_file_is_missing: function (test) {
+    runGruntTask('codacy:missing_file_test', function (result) {
+      test.ok(!result, 'Should fail');
+
+      test.ok(!codacy.handleInput.called);
+      test.done();
+    });
+  },
+  submits_multiple_files: function (test) {
+    runGruntTask('codacy:multiple_files_test', function (result) {
+      test.ok(result, 'Should be successful');
+
+      test.ok(codacy.handleInput.calledTwice);
+      sinon.assert.calledWith(codacy.handleInput, 'lcov.info content');
+      sinon.assert.calledWith(codacy.handleInput, 'lcov2.info content');
+      test.done();
+    });
+  },
+  submits_present_files_only_if_some_are_missing: function (test) {
+    runGruntTask('codacy:some_missing_files_test', function (result) {
+      test.ok(result, 'Should be successful');
+
+      test.ok(codacy.handleInput.calledOnce);
+      sinon.assert.calledWith(codacy.handleInput, 'lcov.info content');
+      test.done();
+    });
+  },
+  fails_if_multiple_files_listed_and_all_files_are_missing: function (test) {
+    runGruntTask('codacy:all_missing_files_test', function (result) {
+      test.ok(!result, 'Should fail');
+
+      test.ok(!codacy.handleInput.called);
+      test.done();
+    });
+  }
 };

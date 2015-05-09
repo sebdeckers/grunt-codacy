@@ -23,51 +23,60 @@ module.exports = function(grunt) {
       }
     },
 
-    // Before generating any new files, remove any previously-created files.
-    clean: {
-      tests: ['tmp']
-    },
-
-    // Configuration to be run (and then tested).
     codacy: {
-      default_options: {
+      basic_test: {
+        src: 'test/fixtures/lcov.info'
+      },
+      basic_test_force: {
+        src: 'test/fixtures/lcov.info',
         options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
+          force: true
         }
       },
-      custom_options: {
-        options: {
-          separator: ': ',
-          punctuation: ' !!!'
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
-        }
+      multiple_files_test: {
+        src: ['test/fixtures/lcov.info', 'test/fixtures/lcov2.info']
+      },
+      missing_file_test: {
+        src: 'test/fixtures/nonexistent_lcov.info'
+      },
+      some_missing_files_test: {
+          src: ['test/fixtures/lcov.info', 'test/fixtures/nonexistent_lcov.info']
+      },
+      all_missing_files_test: {
+          src: ['test/fixtures/nonexistent_lcov1.info', 'test/fixtures/nonexistent_lcov2.info']
       }
     },
 
-    // Unit tests.
     nodeunit: {
       tests: ['test/*_test.js']
-    }
+    },
 
+    watch: {
+      options: {
+        spawn: false
+      },
+      gruntfile: {
+        files: 'Gruntfile.js',
+        tasks: ['jshint']
+      },
+      lib: {
+        files: 'tasks/*.js',
+        tasks: ['test']
+      },
+      test: {
+        files: 'test/*js',
+        tasks: ['test']
+      }
+    }
   });
 
-  // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
-  // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-  // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'codacy', 'nodeunit']);
+  grunt.registerTask('test', ['jshint', 'nodeunit']);
 
-  // By default, lint and run all tests.
-  grunt.registerTask('default', ['jshint', 'test']);
-
+  grunt.registerTask('default', ['test']);
 };

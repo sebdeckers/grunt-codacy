@@ -27,15 +27,19 @@
     "test": "grunt test"
   },
   "devDependencies": {
+    "grunt": "~0.4.5",
     "grunt-contrib-jshint": "^0.9.2",
-    "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-nodeunit": "^0.3.3",
-    "grunt": "~0.4.5"
+    "sinon": "^1.14.1"
   },
   "peerDependencies": {
     "grunt": "~0.4.5"
   },
   "keywords": [
     "gruntplugin"
-  ]
+  ],
+  "dependencies": {
+    "codacy-coverage": "^1.0.4",
+    "promise": "^7.0.1"
+  }
 }

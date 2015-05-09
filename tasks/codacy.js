@@ -1,50 +1,39 @@
-/*
- * grunt-codacy
- * https://github.com/cbas/grunt-codacy
- *
- * Copyright (c) 2015 Sebastiaan Deckers
- * Licensed under the ISC license.
- */
-
 'use strict';
 
+var Promise = require('promise');
+var codacy = require('codacy-coverage');
+
 module.exports = function(grunt) {
-
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
-
   grunt.registerMultiTask('codacy', 'Publish code coverage metrics to Codacy', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
+    var done = this.async();
+
     var options = this.options({
-      punctuation: '.',
-      separator: ', '
+      format: undefined,
+      token: undefined,
+      commit: undefined,
+      endpoint: undefined,
+      prefix: undefined,
+      verbose: undefined,
+      debug: undefined
     });
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
-        } else {
-          return true;
-        }
-      }).map(function(filepath) {
-        // Read file source.
+    var outputFiles = this.files.map(function(f) {
+      var inputFiles = f.src.map(function(filepath) {
         return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
-
-      // Handle options.
-      src += options.punctuation;
-
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
-
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
+      }).map(function(filedata) {
+        return codacy.handleInput(filedata, options);
+      });
+      return inputFiles.length ? Promise.all(inputFiles) : Promise.reject();
     });
+    if (outputFiles.length) {
+      Promise.all(outputFiles)
+        .then(
+          function (val) { done(true); },
+          function (err) { done(false); }
+        );
+    }
+    else {
+      done(false);
+    }
   });
-
 };
