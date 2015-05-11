@@ -1,7 +1,7 @@
 {
   "name": "grunt-codacy",
   "description": "Publish code coverage metrics to Codacy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/cbas/grunt-codacy",
   "author": {
     "name": "Sebastiaan Deckers",
@@ -39,7 +39,7 @@
     "gruntplugin"
   ],
   "dependencies": {
-    "codacy-coverage": "^1.0.4",
+    "codacy-coverage": "^1.1.0",
     "promise": "^7.0.1"
   }
 }
